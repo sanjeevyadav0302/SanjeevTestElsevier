@@ -10,8 +10,6 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -26,17 +24,10 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
-/*@TestPropertySource(properties = {
-        "github.host=null",
-})*/
-@PropertySource("classpath:application.properties")
 public class GitHubServiceRestClientTest {
 
     @Mock
     private RestTemplate restTemplate;
-
-    @Value("${github.host}")
-    private String host;
 
     @InjectMocks
     private GitHubServiceRestClient gitHubServiceRestClient;
@@ -59,7 +50,7 @@ public class GitHubServiceRestClientTest {
     }
 
     @Test(expected = GitServiceException.class)
-    public void getPublicRepositories_ForANonUser_ShouldThroughServiceException() {
+    public void getPublicRepositories_ForANonUser_ShouldThrowServiceException() {
         List<RepositoryNames> repositoryNamesList = new ArrayList<>();
         RepositoryNames repositoryNames = new RepositoryNames();
         repositoryNames.setName("repo1");

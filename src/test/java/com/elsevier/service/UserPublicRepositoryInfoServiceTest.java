@@ -108,9 +108,8 @@ public class UserPublicRepositoryInfoServiceTest {
         assertEquals(0, userRepoDetails.get(1).getCollaborators().get(1).getCommitsCount());
     }
 
-    ///consideration test first
     @Test
-    public void getPublicRepositoriesInfo_ShouldGiveNoCollaborats_WhenThereIsNoCollaboratorsFor() {
+    public void getPublicRepositoriesInfo_ShouldOnlyGiveOwnerAsCollaborators_WhenThereIsNoCollaboratorsForRepo() {
         when(gitHubServiceRestClient.getPublicRepositories(anyString()))
                 .thenReturn(gitHubDataUtil.getRepositoryNames());
 

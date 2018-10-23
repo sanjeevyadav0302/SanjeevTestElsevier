@@ -3,7 +3,6 @@ package com.elsevier.service;
 import com.elsevier.external.GitHubServiceRestClient;
 import com.elsevier.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,8 +15,6 @@ public class UserPublicRepositoryInfoService {
     @Autowired
     private GitHubServiceRestClient gitHubServiceRestClient;
 
-    @Value("${user.name}")
-    private String userName;
 
     /**
      * This method will return repositories info with collaborators details
