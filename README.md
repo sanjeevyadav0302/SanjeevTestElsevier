@@ -22,11 +22,8 @@ Test Tool: JUnit 4.12
 
 Json Binding to POJO : jackson-databind 
 
-Overide To String for beautiful json format : commons-lang3  
+Override ToString for beautiful json format : commons-lang3  
 
-java doc plugin to generate java docs for the project. To generate java doc run below command. 
-
-mvn javadoc:javadoc
 
 **Execution**
 
@@ -109,5 +106,7 @@ Output you can see in the console in json format ,that will contain all public r
  Please do let me for any question/clarification on my mail id sanjeev.yadav3290@gmail.com.
  
  I would be happy to assist you.
+ 
+ Happy coding:)
  
 
