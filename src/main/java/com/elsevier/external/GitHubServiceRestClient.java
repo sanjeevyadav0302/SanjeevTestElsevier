@@ -1,6 +1,6 @@
 package com.elsevier.external;
 
-import com.elsevier.exception.GitServiceException;
+import com.elsevier.exception.GitHubServiceException;
 import com.elsevier.model.Collaborators;
 import com.elsevier.model.Contributors;
 import com.elsevier.model.RepositoryNames;
@@ -45,7 +45,7 @@ public class GitHubServiceRestClient {
                     });
             responseBody = response.getBody();
         } catch (Exception e) {
-            throw new GitServiceException("Exception occured while fetching public repository from github ***" + e.getMessage());
+            throw new GitHubServiceException("Exception occured while fetching public repository from github ***" + e.getMessage());
         }
         return responseBody;
     }
@@ -70,7 +70,7 @@ public class GitHubServiceRestClient {
                     });
             responseBody = response.getBody();
         } catch (Exception e) {
-            throw new GitServiceException("Exception occured while fetching all the collobrators from github ***" + e.getMessage());
+            throw new GitHubServiceException("Exception occured while fetching collobrators from github ***" + e.getMessage());
         }
         return responseBody;
     }
@@ -90,13 +90,13 @@ public class GitHubServiceRestClient {
         ResponseEntity<List<Contributors>> response;
         List<Contributors> responseBody = new ArrayList<>();
         try {
-            response = restTemplate.exchange(host + UriUtil.getContributors(owner, repoName),
+            response = restTemplate.exchange(host + UriUtil.getContributorsUri(owner, repoName),
                     HttpMethod.GET, entity,
                     new ParameterizedTypeReference<List<Contributors>>() {
                     });
             responseBody = response.getBody();
         } catch (Exception e) {
-            throw new GitServiceException("Exception occured while fetching all the contributors from github ***" + e.getMessage());
+            throw new GitHubServiceException("Exception occured while fetching contributors from github ***" + e.getMessage());
         }
         return responseBody;
     }

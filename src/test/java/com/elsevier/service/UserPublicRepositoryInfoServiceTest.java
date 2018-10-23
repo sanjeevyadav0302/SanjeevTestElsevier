@@ -109,28 +109,27 @@ public class UserPublicRepositoryInfoServiceTest {
     }
 
     @Test
-    public void getPublicRepositoriesInfo_ShouldOnlyGiveOwnerAsCollaborators_WhenThereIsNoCollaboratorsForRepo() {
+    public void getPublicRepositoriesInfo_ShouldOnlyGiveOnlyOwnerAsCollaborators_WhenThereIsNoOtherCollaborators() {
         when(gitHubServiceRestClient.getPublicRepositories(anyString()))
                 .thenReturn(gitHubDataUtil.getRepositoryNames());
 
         when(gitHubServiceRestClient.getCollaborators(anyString(), anyString()))
-                .thenReturn(gitHubDataUtil.getCollaboratorsWithOneNonMatchingContributors());
+                .thenReturn(gitHubDataUtil.getOwnerAsCollaborator());
 
         when(gitHubServiceRestClient.getContributors(anyString(), anyString()))
-                .thenReturn(gitHubDataUtil.getContributors());
+                .thenReturn(gitHubDataUtil.getOwnerAsContributors());
 
         List<UserRepositoriesInfo> userRepoDetails = userPublicRepositoryInfoService.getPublicRepositoriesInfo("san");
         assertNotNull(userRepoDetails);
+        assertEquals(2, userRepoDetails.size());
+        assertEquals(1, userRepoDetails.get(0).getCollaborators().size());
+        assertEquals(1, userRepoDetails.get(1).getCollaborators().size());
         assertEquals("repo1", userRepoDetails.get(0).getRepositoryName());
         assertEquals("repo2", userRepoDetails.get(1).getRepositoryName());
-        assertEquals("test1", userRepoDetails.get(0).getCollaborators().get(0).getName());
-        assertEquals(10, userRepoDetails.get(0).getCollaborators().get(0).getCommitsCount());
-        assertEquals("jee", userRepoDetails.get(0).getCollaborators().get(1).getName());
-        assertEquals(0, userRepoDetails.get(0).getCollaborators().get(1).getCommitsCount());
-        assertEquals("test1", userRepoDetails.get(1).getCollaborators().get(0).getName());
-        assertEquals(10, userRepoDetails.get(1).getCollaborators().get(0).getCommitsCount());
-        assertEquals("jee", userRepoDetails.get(1).getCollaborators().get(1).getName());
-        assertEquals(0, userRepoDetails.get(1).getCollaborators().get(1).getCommitsCount());
+        assertEquals("owner1", userRepoDetails.get(0).getCollaborators().get(0).getName());
+        assertEquals(2, userRepoDetails.get(0).getCollaborators().get(0).getCommitsCount());
+        assertEquals("owner1", userRepoDetails.get(1).getCollaborators().get(0).getName());
+        assertEquals(2, userRepoDetails.get(1).getCollaborators().get(0).getCommitsCount());
     }
 
 }

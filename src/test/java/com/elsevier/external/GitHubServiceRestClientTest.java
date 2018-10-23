@@ -1,9 +1,10 @@
 package com.elsevier.external;
 
-import com.elsevier.exception.GitServiceException;
+import com.elsevier.exception.GitHubServiceException;
 import com.elsevier.model.Collaborators;
 import com.elsevier.model.Contributors;
 import com.elsevier.model.RepositoryNames;
+import com.elsevier.util.GitHubDataUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
@@ -32,13 +33,12 @@ public class GitHubServiceRestClientTest {
     @InjectMocks
     private GitHubServiceRestClient gitHubServiceRestClient;
 
+    private GitHubDataUtil gitHubDataUtil = new GitHubDataUtil();
+
     @Test
     public void getPublicRepositories_ForAValidUser_ShouldGivePublicRepositoriesInfo() {
-        List<RepositoryNames> repositoryNamesList = new ArrayList<>();
-        RepositoryNames repositoryNames = new RepositoryNames();
-        repositoryNames.setName("repo1");
-        repositoryNamesList.add(repositoryNames);
-        ResponseEntity<List<RepositoryNames>> myEntity = new ResponseEntity<List<RepositoryNames>>(repositoryNamesList, HttpStatus.OK);
+        List<RepositoryNames> repositoryNames = gitHubDataUtil.getRepositoryNames();
+        ResponseEntity<List<RepositoryNames>> myEntity = new ResponseEntity<List<RepositoryNames>>(repositoryNames, HttpStatus.OK);
         Mockito.when(restTemplate.exchange(
                 ArgumentMatchers.anyString(),
                 ArgumentMatchers.eq(HttpMethod.GET),
@@ -47,22 +47,21 @@ public class GitHubServiceRestClientTest {
         ).thenReturn(myEntity);
         List<RepositoryNames> res = gitHubServiceRestClient.getPublicRepositories("san");
         assertEquals("repo1", res.get(0).getName());
+        assertEquals("repo2", res.get(1).getName());
     }
 
-    @Test(expected = GitServiceException.class)
+    @Test(expected = GitHubServiceException.class)
     public void getPublicRepositories_ForANonUser_ShouldThrowServiceException() {
-        List<RepositoryNames> repositoryNamesList = new ArrayList<>();
-        RepositoryNames repositoryNames = new RepositoryNames();
-        repositoryNames.setName("repo1");
-        repositoryNamesList.add(repositoryNames);
-        ResponseEntity<List<RepositoryNames>> myEntity = new ResponseEntity<List<RepositoryNames>>(repositoryNamesList, HttpStatus.OK);
+        List<RepositoryNames> repositoryNames = gitHubDataUtil.getRepositoryNames();
+        ResponseEntity<List<RepositoryNames>> myEntity = new ResponseEntity<List<RepositoryNames>>(repositoryNames, HttpStatus.OK);
         when(restTemplate.exchange(
                 ArgumentMatchers.anyString(),
                 ArgumentMatchers.eq(HttpMethod.GET),
                 ArgumentMatchers.eq(null),
                 ArgumentMatchers.<ParameterizedTypeReference<List<RepositoryNames>>>any())
-        ).thenThrow(new GitServiceException("message"));
+        ).thenThrow(new GitHubServiceException("git hub service failed"));
         List<RepositoryNames> res = gitHubServiceRestClient.getPublicRepositories("s23456");
+
     }
 
     @Test
@@ -81,10 +80,7 @@ public class GitHubServiceRestClientTest {
 
     @Test
     public void getCollaborators_ForAValidUser_ShouldGiveCollaboratorsInfo() {
-        List<Collaborators> collaborators = new ArrayList<>();
-        Collaborators collaborator = new Collaborators();
-        collaborator.setLogin("test1");
-        collaborators.add(collaborator);
+        List<Collaborators> collaborators = gitHubDataUtil.getCollaborators();
         ResponseEntity<List<Collaborators>> myEntity = new ResponseEntity<List<Collaborators>>(collaborators, HttpStatus.OK);
         Mockito.when(restTemplate.exchange(
                 ArgumentMatchers.anyString(),
@@ -94,15 +90,12 @@ public class GitHubServiceRestClientTest {
         ).thenReturn(myEntity);
         List<Collaborators> res = gitHubServiceRestClient.getCollaborators("san", "mars");
         assertEquals("test1", res.get(0).getLogin());
+        assertEquals("test2", res.get(1).getLogin());
     }
 
     @Test
-    public void getContributors_ForAValidUser_ShouldGiveContributorsInfo() {
-        List<Contributors> contributors = new ArrayList<>();
-        Contributors contributor = new Contributors();
-        contributor.setLogin("test1");
-        contributor.setContributions(10);
-        contributors.add(contributor);
+    public void getContributorsForAValidUser_ShouldGiveContributorsInfo() {
+        List<Contributors> contributors = gitHubDataUtil.getContributors();
         ResponseEntity<List<Contributors>> myEntity = new ResponseEntity<List<Contributors>>(contributors, HttpStatus.OK);
         Mockito.when(restTemplate.exchange(
                 ArgumentMatchers.anyString(),
@@ -113,6 +106,25 @@ public class GitHubServiceRestClientTest {
         List<Contributors> res = gitHubServiceRestClient.getContributors("san", "mars");
         assertEquals("test1", res.get(0).getLogin());
         assertEquals(10, res.get(0).getContributions());
+        assertEquals("test2", res.get(1).getLogin());
+        assertEquals(8, res.get(1).getContributions());
+        assertEquals("test3", res.get(2).getLogin());
+        assertEquals(7, res.get(2).getContributions());
+    }
+
+    @Test
+    public void getContributors_ForAValidUser_ShouldGiveNoContributonWhenNoContributorsHasCommited() {
+        List<Contributors> contributors = new ArrayList<>();
+        ResponseEntity<List<Contributors>> myEntity = new ResponseEntity<List<Contributors>>(contributors, HttpStatus.OK);
+        Mockito.when(restTemplate.exchange(
+                ArgumentMatchers.anyString(),
+                ArgumentMatchers.eq(HttpMethod.GET),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.<ParameterizedTypeReference<List<Contributors>>>any())
+        ).thenReturn(myEntity);
+        List<Contributors> res = gitHubServiceRestClient.getContributors("san", "mars");
+        assertEquals(0, res.size());
+
     }
 
 }

@@ -71,4 +71,21 @@ public class GitHubDataUtil {
         collaborators.add(collaborators2);
         return collaborators;
     }
+
+    public List<Collaborators> getOwnerAsCollaborator() {
+        List<Collaborators> collaborators = new ArrayList<>();
+        Collaborators collaborators1 = new Collaborators();
+        collaborators1.setLogin("owner1");
+        collaborators.add(collaborators1);
+        return collaborators;
+    }
+
+    public List<Contributors> getOwnerAsContributors() {
+        List<Contributors> contributors = new ArrayList<>();
+        Contributors contributors1 = new Contributors();
+        contributors1.setLogin("owner1");
+        contributors1.setContributions(2);
+        contributors.add(contributors1);
+        return contributors;
+    }
 }

@@ -20,7 +20,7 @@ public class UserPublicRepositoryInfoService {
      * This method will return repositories info with collaborators details
      *
      * @param userName
-     * @return
+     * @return List<UserRepositoriesInfo>
      */
     public List<UserRepositoriesInfo> getPublicRepositoriesInfo(String userName) {
         List<UserRepositoriesInfo> userRepositoriesInfo = new ArrayList<>();
@@ -39,10 +39,10 @@ public class UserPublicRepositoryInfoService {
         return userRepositoriesInfo;
     }
 
-    /**
+    /** This method will return list of collaborators with their contribution
      * @param contributors
      * @param collaborators
-     * @return
+     * @return List<Contributors>
      */
     private List<Contributors> getCollaboratorsContribution(List<Contributors> contributors, List<Collaborators> collaborators) {
         List<Contributors> contributorsList = getContributorsWhoAreCollaborators(contributors, collaborators);
@@ -50,20 +50,20 @@ public class UserPublicRepositoryInfoService {
 
     }
 
-    /**
+    /** This will return contributors who are collaborators
      * @param contributors
      * @param collaborators
-     * @return
+     * @return List<Contributors>
      */
     private List<Contributors> getContributorsWhoAreCollaborators(List<Contributors> contributors, List<Collaborators> collaborators) {
         return contributors.stream().filter(contributor -> (collaborators.stream().map(Collaborators::getLogin).collect(Collectors.toList())).
                 contains(contributor.getLogin())).collect(Collectors.toList());
     }
 
-    /**
+    /** This method will return Collaborators default contribution o as they are not contributors.
      * @param collaborators
      * @param contributorsList
-     * @return
+     * @return List<Contributors>
      */
     private List<Contributors> getDefaultContributionForCollaborators(List<Collaborators> collaborators, List<Contributors> contributorsList) {
         collaborators.stream().map(Collaborators::getLogin).collect(Collectors.toList()).stream().
@@ -76,10 +76,10 @@ public class UserPublicRepositoryInfoService {
         return contributorsList;
     }
 
-    /**
+    /** prepare the final collaborators details with contribution
      * @param collaboratorDetails
      * @param collaboratorsContribution
-     * @return
+     * @return List<CollaboratorDetails>
      */
     private List<CollaboratorDetails> prepareCollaboratorsResponse(List<CollaboratorDetails> collaboratorDetails, List<Contributors> collaboratorsContribution) {
         collaboratorsContribution.forEach(collaborator -> {
