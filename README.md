@@ -26,9 +26,11 @@ Import and setup the project in your chosen IDE
 
 Before running this program please make sure you put user repository OAuth git hub token in application.properties.
 You can see the place holder for the same as  github.OAuth.token=<token>
+
 for e.x = github.OAuth.token=1234
 
 Run the Maven 'clean' and 'install' life cycles, this will run all the tests in Maven and build you a .jar
+
 **Maven:**
 
 This will run a clean, run all of the tests and package a .jar file.
@@ -37,6 +39,7 @@ mvn clean install
 **Java:**
 
 This will run the executable .jar file you just packaged with Maven.
+
 java -jar target\SanjeevTestElsevier-0.0.1-SNAPSHOT.jar --user.name={userName}
 for e.x.
 
@@ -57,6 +60,7 @@ Please make sure you do pass user.name else application wont start ,you will get
 **OutPut Response:**
 
 OutPut you can see in the console in json format ,that will contain all public repositories of the user, and for each
+
  repository—list collaborators ordered by the number of commits per collaborator in descending order.
  
  
