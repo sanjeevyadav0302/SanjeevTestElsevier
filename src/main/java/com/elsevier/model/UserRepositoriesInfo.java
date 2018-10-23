@@ -7,7 +7,7 @@ import java.util.List;
 
 import static org.apache.commons.lang3.builder.ToStringStyle.JSON_STYLE;
 
-public class UserRepositoryDetailsVO {
+public class UserRepositoriesInfo {
 
     private String repositoryName;
 

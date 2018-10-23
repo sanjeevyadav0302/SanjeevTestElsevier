@@ -4,53 +4,67 @@ import com.elsevier.exception.GitServiceException;
 import com.elsevier.model.Collaborators;
 import com.elsevier.model.Contributors;
 import com.elsevier.model.RepositoryNames;
+import com.elsevier.util.UriUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
-public class GitHubService {
+@Component
+public class GitHubServiceRestClient {
 
-    @Value("${github.token}")
+    @Value("${github.OAuth.token}")
     private String token;
+
+    @Value("${github.host}")
+    private String host;
+
 
     @Autowired
     private RestTemplate restTemplate;
 
-
+    /**
+     * get all public repositories for a user
+     *
+     * @param userName
+     * @return
+     */
     public List<RepositoryNames> getPublicRepositories(String userName) {
-
-        String url = "https://api.github.com/users/" + userName + "/repos";
         ResponseEntity<List<RepositoryNames>> response;
         List<RepositoryNames> responseBody = new ArrayList<>();
         try {
-            response = restTemplate.exchange(url,
+            response = restTemplate.exchange(host + UriUtil.getRepositoryUri(userName),
                     HttpMethod.GET,
                     null,
                     new ParameterizedTypeReference<List<RepositoryNames>>() {
                     });
             responseBody = response.getBody();
         } catch (Exception e) {
-            throw new GitServiceException("Exception occured while fetching all the repository from github ***" + e.getMessage());
+            throw new GitServiceException("Exception occured while fetching public repository from github ***" + e.getMessage());
         }
         return responseBody;
     }
 
+    /**
+     * get all the collaborators for a given owner/user name and repositories
+     *
+     * @param owner
+     * @param repoName
+     * @return
+     */
     public List<Collaborators> getCollaborators(String owner, String repoName) {
 
         HttpHeaders headers = createHttpHeaders();
         HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
-        String url = "https://api.github.com/repos/" + owner + "/" + repoName + "/collaborators";
         ResponseEntity<List<Collaborators>> response;
         List<Collaborators> responseBody = new ArrayList<>();
         try {
-            response = restTemplate.exchange(url,
+            response = restTemplate.exchange(host + UriUtil.getCollaboratorUri(owner, repoName),
                     HttpMethod.GET, entity,
                     new ParameterizedTypeReference<List<Collaborators>>() {
                     });
@@ -61,15 +75,22 @@ public class GitHubService {
         return responseBody;
     }
 
+    /**
+     * get all the contributors for a given owner/user and repo name
+     *
+     * @param owner
+     * @param repoName
+     * @return
+     */
+
     public List<Contributors> getContributors(String owner, String repoName) {
 
         HttpHeaders headers = createHttpHeaders();
         HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
-        String url = "https://api.github.com/repos/" + owner + "/" + repoName + "/contributors";
         ResponseEntity<List<Contributors>> response;
         List<Contributors> responseBody = new ArrayList<>();
         try {
-            response = restTemplate.exchange(url,
+            response = restTemplate.exchange(host + UriUtil.getContributors(owner, repoName),
                     HttpMethod.GET, entity,
                     new ParameterizedTypeReference<List<Contributors>>() {
                     });
@@ -80,12 +101,15 @@ public class GitHubService {
         return responseBody;
     }
 
+    /**
+     * create headers to set OAuth token for gitHub
+     *
+     * @return
+     */
     private HttpHeaders createHttpHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("Authorization", "token " + token);
         return headers;
     }
-
-
 }

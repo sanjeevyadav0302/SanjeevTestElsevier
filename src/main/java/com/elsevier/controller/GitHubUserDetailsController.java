@@ -1,7 +1,7 @@
 package com.elsevier.controller;
 
-import com.elsevier.model.UserRepositoryDetailsVO;
-import com.elsevier.service.GitHubUserService;
+import com.elsevier.model.UserRepositoriesInfo;
+import com.elsevier.service.UserPublicRepositoryInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,9 +17,9 @@ public class GitHubUserDetailsController {
     private String userName;
 
     @Autowired
-    GitHubUserService gitHubUserService;
+    UserPublicRepositoryInfoService userPublicRepositoryInfoService;
     @RequestMapping(value = "git", method = RequestMethod.GET)
-    public List<UserRepositoryDetailsVO> gitHubUserDetails() {
-        return gitHubUserService.getUserPublicRepositoriesDetail(userName);
+    public List<UserRepositoriesInfo> gitHubUserDetails() {
+        return userPublicRepositoryInfoService.getPublicRepositoriesInfo(userName);
     }
 }

@@ -1,8 +1,10 @@
 package com.elsevier;
 
 import com.elsevier.exception.UserNameNotFound;
-import com.elsevier.model.UserRepositoryDetailsVO;
-import com.elsevier.service.GitHubUserService;
+import com.elsevier.model.UserRepositoriesInfo;
+import com.elsevier.service.UserPublicRepositoryInfoService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -16,8 +18,10 @@ import java.util.List;
 @SpringBootApplication
 public class SanjeevTestElsevierApplication implements ApplicationRunner {
 
+    private static final Logger log = LoggerFactory.getLogger(SanjeevTestElsevierApplication.class);
+
     @Autowired
-    GitHubUserService gitHubUserService;
+    UserPublicRepositoryInfoService userPublicRepositoryInfoService;
 
     @Value("${user.name}")
     private String userName;
@@ -29,13 +33,13 @@ public class SanjeevTestElsevierApplication implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        System.out.println("Application started with command-line arguments: {}" + Arrays.toString(args.getSourceArgs()));
+        log.info("Application started with command-line arguments: {}", Arrays.toString(args.getSourceArgs()));
         boolean containsOption = args.containsOption("user.name");
         if (!containsOption) {
             throw new UserNameNotFound("Please pass user name as command line parameter");
         }
-        List<UserRepositoryDetailsVO> userRepositoryDetailsVOList = gitHubUserService.getUserPublicRepositoriesDetail(userName);
-        System.out.println("" + userRepositoryDetailsVOList);
+        List<UserRepositoriesInfo> userRepositoryDetail = userPublicRepositoryInfoService.getPublicRepositoriesInfo(userName);
+        log.info("response is : {}" + userRepositoryDetail);
     }
 
 

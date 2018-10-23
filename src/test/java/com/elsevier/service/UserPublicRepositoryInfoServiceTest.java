@@ -1,7 +1,7 @@
 package com.elsevier.service;
 
-import com.elsevier.external.GitHubService;
-import com.elsevier.model.UserRepositoryDetailsVO;
+import com.elsevier.external.GitHubServiceRestClient;
+import com.elsevier.model.UserRepositoriesInfo;
 import com.elsevier.util.GitHubDataUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,13 +19,12 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
-public class GitHubUserServiceTest {
+public class UserPublicRepositoryInfoServiceTest {
 
     @InjectMocks
-    private GitHubUserService gitHubUserService;
-
+    private UserPublicRepositoryInfoService userPublicRepositoryInfoService;
     @Mock
-    private GitHubService gitHubService;
+    private GitHubServiceRestClient gitHubServiceRestClient;
     private GitHubDataUtil gitHubDataUtil = new GitHubDataUtil();
 
     @Before
@@ -34,17 +33,17 @@ public class GitHubUserServiceTest {
     }
 
     @Test
-    public void userPublicRepositoriesDetails_WhenCollaboratorsAreContributors() {
-        when(gitHubService.getPublicRepositories(anyString()))
+    public void getPublicRepositoriesInfo_WhenCollaboratorsAreContributors_ShouldBeSuccessful() {
+        when(gitHubServiceRestClient.getPublicRepositories(anyString()))
                 .thenReturn(gitHubDataUtil.getRepositoryNames());
 
-        when(gitHubService.getCollaborators(anyString(), anyString()))
+        when(gitHubServiceRestClient.getCollaborators(anyString(), anyString()))
                 .thenReturn(gitHubDataUtil.getCollaborators());
 
-        when(gitHubService.getContributors(anyString(), anyString()))
+        when(gitHubServiceRestClient.getContributors(anyString(), anyString()))
                 .thenReturn(gitHubDataUtil.getContributors());
 
-        List<UserRepositoryDetailsVO> userRepoDetails = gitHubUserService.getUserPublicRepositoriesDetail("san");
+        List<UserRepositoriesInfo> userRepoDetails = userPublicRepositoryInfoService.getPublicRepositoriesInfo("san");
         assertNotNull(userRepoDetails);
         assertEquals("repo1", userRepoDetails.get(0).getRepositoryName());
         assertEquals("repo2", userRepoDetails.get(1).getRepositoryName());
@@ -60,17 +59,17 @@ public class GitHubUserServiceTest {
 
 
     @Test
-    public void userPublicRepositoriesDetails_WhenCollaborators_AreNotContributors() {
-        when(gitHubService.getPublicRepositories(anyString()))
+    public void getPublicRepositoriesInfo_WhenCollaboratorsAreNotContributors_ShouldHaveCommitCountZero() {
+        when(gitHubServiceRestClient.getPublicRepositories(anyString()))
                 .thenReturn(gitHubDataUtil.getRepositoryNames());
 
-        when(gitHubService.getCollaborators(anyString(), anyString()))
+        when(gitHubServiceRestClient.getCollaborators(anyString(), anyString()))
                 .thenReturn(gitHubDataUtil.getCollaboratorsWithNoMatchingContributors());
 
-        when(gitHubService.getContributors(anyString(), anyString()))
+        when(gitHubServiceRestClient.getContributors(anyString(), anyString()))
                 .thenReturn(gitHubDataUtil.getContributors());
 
-        List<UserRepositoryDetailsVO> userRepoDetails = gitHubUserService.getUserPublicRepositoriesDetail("san");
+        List<UserRepositoriesInfo> userRepoDetails = userPublicRepositoryInfoService.getPublicRepositoriesInfo("san");
         assertNotNull(userRepoDetails);
         assertEquals("repo1", userRepoDetails.get(0).getRepositoryName());
         assertEquals("repo2", userRepoDetails.get(1).getRepositoryName());
@@ -85,17 +84,17 @@ public class GitHubUserServiceTest {
     }
 
     @Test
-    public void userPublicRepositoriesDetails_WhenOneCollaborators_IsNotContributors() {
-        when(gitHubService.getPublicRepositories(anyString()))
+    public void getPublicRepositoriesInfo_WhenOneCollaboratorsIsNotContributors_ShouldBeSuccessFull() {
+        when(gitHubServiceRestClient.getPublicRepositories(anyString()))
                 .thenReturn(gitHubDataUtil.getRepositoryNames());
 
-        when(gitHubService.getCollaborators(anyString(), anyString()))
+        when(gitHubServiceRestClient.getCollaborators(anyString(), anyString()))
                 .thenReturn(gitHubDataUtil.getCollaboratorsWithOneNonMatchingContributors());
 
-        when(gitHubService.getContributors(anyString(), anyString()))
+        when(gitHubServiceRestClient.getContributors(anyString(), anyString()))
                 .thenReturn(gitHubDataUtil.getContributors());
 
-        List<UserRepositoryDetailsVO> userRepoDetails = gitHubUserService.getUserPublicRepositoriesDetail("san");
+        List<UserRepositoriesInfo> userRepoDetails = userPublicRepositoryInfoService.getPublicRepositoriesInfo("san");
         assertNotNull(userRepoDetails);
         assertEquals("repo1", userRepoDetails.get(0).getRepositoryName());
         assertEquals("repo2", userRepoDetails.get(1).getRepositoryName());
@@ -109,5 +108,30 @@ public class GitHubUserServiceTest {
         assertEquals(0, userRepoDetails.get(1).getCollaborators().get(1).getCommitsCount());
     }
 
+    ///consideration test first
+    @Test
+    public void getPublicRepositoriesInfo_ShouldGiveNoCollaborats_WhenThereIsNoCollaboratorsFor() {
+        when(gitHubServiceRestClient.getPublicRepositories(anyString()))
+                .thenReturn(gitHubDataUtil.getRepositoryNames());
+
+        when(gitHubServiceRestClient.getCollaborators(anyString(), anyString()))
+                .thenReturn(gitHubDataUtil.getCollaboratorsWithOneNonMatchingContributors());
+
+        when(gitHubServiceRestClient.getContributors(anyString(), anyString()))
+                .thenReturn(gitHubDataUtil.getContributors());
+
+        List<UserRepositoriesInfo> userRepoDetails = userPublicRepositoryInfoService.getPublicRepositoriesInfo("san");
+        assertNotNull(userRepoDetails);
+        assertEquals("repo1", userRepoDetails.get(0).getRepositoryName());
+        assertEquals("repo2", userRepoDetails.get(1).getRepositoryName());
+        assertEquals("test1", userRepoDetails.get(0).getCollaborators().get(0).getName());
+        assertEquals(10, userRepoDetails.get(0).getCollaborators().get(0).getCommitsCount());
+        assertEquals("jee", userRepoDetails.get(0).getCollaborators().get(1).getName());
+        assertEquals(0, userRepoDetails.get(0).getCollaborators().get(1).getCommitsCount());
+        assertEquals("test1", userRepoDetails.get(1).getCollaborators().get(0).getName());
+        assertEquals(10, userRepoDetails.get(1).getCollaborators().get(0).getCommitsCount());
+        assertEquals("jee", userRepoDetails.get(1).getCollaborators().get(1).getName());
+        assertEquals(0, userRepoDetails.get(1).getCollaborators().get(1).getCommitsCount());
+    }
 
 }
