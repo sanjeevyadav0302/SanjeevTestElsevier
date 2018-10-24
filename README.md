@@ -55,7 +55,12 @@ for e.x.
 
 java -jar target\SanjeevTestElsevier-0.0.1-SNAPSHOT.jar --user.name=abc
 
-Alternatively you can run this application using below SpringBoot command 
+Alternatively you can run this application using below SpringBoot command .Please note this will not run jar file instead application and you have to run test seprately using below command
+
+
+mvn clean test
+
+Now run application :
 
 mvn spring-boot:run -Dspring-boot.run.arguments=--user.name=abc
 
